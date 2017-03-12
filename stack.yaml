@@ -1,0 +1,16 @@
+# Haskell Stack configuration
+#
+# See https://docs.haskellstack.org/en/stable/yaml_configuration/
+
+resolver: lts-8.2
+
+packages:
+  - .
+
+nix:
+  enable: true
+  pure: true
+  packages: []
+
+flags: {}
+extra-package-dbs: []
