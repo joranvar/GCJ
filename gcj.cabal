@@ -19,6 +19,7 @@ library
     default-language: Haskell2010
     default-extensions: NoImplicitPrelude
                       , OverloadedStrings
+                      , RecordWildCards
 
 executable gcj
     hs-source-dirs: src/gcj-app

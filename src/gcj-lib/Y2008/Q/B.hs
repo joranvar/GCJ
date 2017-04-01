@@ -1,5 +1,3 @@
-{-# LANGUAGE RecordWildCards #-}
-
 module Y2008.Q.B where
 
 import Protolude
