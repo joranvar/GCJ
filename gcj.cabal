@@ -9,6 +9,7 @@ library
     exposed-modules: Lib
     other-modules: Y2008.Q.A
                  , Y2008.Q.B
+                 , Y2008.Q.C
     ghc-options: -Wall -Werror
     build-depends: base
                  , protolude
