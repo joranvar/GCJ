@@ -10,6 +10,7 @@ library
     other-modules: Y2008.Q.A
                  , Y2008.Q.B
                  , Y2008.Q.C
+                 , Y2008.R1A.A
     ghc-options: -Wall -Werror
     build-depends: base
                  , protolude
