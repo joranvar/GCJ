@@ -11,6 +11,7 @@ library
                  , Y2008.Q.B
                  , Y2008.Q.C
                  , Y2008.R1A.A
+                 , Y2008.R1A.B
     ghc-options: -Wall -Werror
     build-depends: base
                  , protolude
