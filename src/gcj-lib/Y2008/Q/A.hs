@@ -1,8 +1,11 @@
+{-# LANGUAGE RecordWildCards #-}
+
 module Y2008.Q.A where
 
 import Protolude
 
 import qualified Data.Text as Text (concat)
+import qualified Data.Set as Set
 import Data.String
 
 solve :: Text -> Text
@@ -24,6 +27,11 @@ parse (s:rest) =
       (qs', rest'') = splitAt (maybe 0 fst $ head $ reads q) rest'
   in P ss' qs' : parse rest''
 
-solve' (P _ _) = S 1
+solve' P{..} = S . snd . foldl (countSets) (Set.empty, 0) . filter (`elem` ss) $ qs
+  where
+    countSets :: (Set String, Int) -> String -> (Set String, Int)
+    countSets (qs', i) q | q `elem` qs' = (qs', i)
+    countSets (qs', i) q | (length qs' == length ss - 1) = (Set.singleton q, i+1)
+    countSets (qs', i) q = (Set.insert q qs', i)
 
 write (i, S s) = toS $ "Case #" ++ show i ++ ": " ++ show s ++ "\n"
