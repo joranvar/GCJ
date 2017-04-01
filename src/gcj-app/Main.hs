@@ -4,10 +4,11 @@ import Protolude
 
 import System.Remote.Monitoring (forkServer)
 
+import Lib (runner)
+
 main :: IO ()
 main = do
   _ <- forkServer "0.0.0.0" 8081
-  putText "EKG running on http://localhost:8081"
-  putText "hit any key to quit"
   args <- getArgs
-  putText $ show args
+  let problem = maybe "2008-Q-A" toS $ head args
+  interact $ fromMaybe identity $ runner problem

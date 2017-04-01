@@ -7,6 +7,7 @@ cabal-version: >=1.10
 library
     hs-source-dirs: src/gcj-lib
     exposed-modules: Lib
+    other-modules: Y2008.Q.A
     ghc-options: -Wall -Werror
     build-depends: base
                  , protolude
