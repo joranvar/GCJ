@@ -7,7 +7,7 @@ import qualified Data.Text as Text (concat)
 import Data.String
 
 solve :: Bool -> Text -> Text
-solve _ =  Text.concat . map write . zip [1..] .  map solve' . parse . drop 1 . lines . toS
+solve blindly =  Text.concat . map write . zip [1..] .  map (\p -> let s = solve' p in (s, if blindly then (True, "") else verify p s)) . parse . drop 1 . lines . toS
 
 data P = P { cs::[Bool], k::Int }
   deriving Show
@@ -16,7 +16,8 @@ data S = S Int | Impossible
 
 parse :: [String] -> [P]
 solve' :: P -> S
-write :: (Int, S) -> Text
+write :: (Int, (S, (Bool, String))) -> Text
+verify :: P -> S -> (Bool, String)
 
 read :: (Read a) => a -> String -> a
 read d = maybe d fst . head . reads
@@ -34,5 +35,10 @@ parse _ = []
 solve' P{..} | all identity cs = S 0
 solve' P{..} = Impossible
 
-write (i, S s) = toS $ "Case #" ++ show i ++ ": " ++ show s ++ "\n"
-write (i, Impossible) = toS $ "Case #" ++ show i ++ ": IMPOSSIBLE\n"
+write (i, (S s, v)) = toS $ writeVerification v ++ "Case #" ++ show i ++ ": " ++ show s ++ "\n"
+write (i, (Impossible, v)) = toS $ writeVerification v ++ "Case #" ++ show i ++ ": IMPOSSIBLE\n"
+writeVerification :: (Bool, String) -> String
+writeVerification (True, _) = ""
+writeVerification (False, err) = "!(" ++ err ++ ")"
+
+verify P{..} _ = (False, "")
