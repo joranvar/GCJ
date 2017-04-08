@@ -9,10 +9,10 @@ import Data.String
 solve :: Text -> Text
 solve =  Text.concat . map write . zip [1..] .  map solve' . parse . drop 1 . lines . toS
 
-data P = P
+data P = P Integer
   deriving Show
 
-data S = S
+data S = S Integer
 
 parse :: [String] -> [P]
 solve' :: P -> S
@@ -21,13 +21,14 @@ write :: (Int, S) -> Text
 read :: (Read a) => a -> String -> a
 read d = maybe d fst . head . reads
 
+parse (n:rest) = P (read 0 n) : parse rest
 parse _ = []
 
-{-> parse . drop 1 . lines $ "2\n5\n3\n1 1 1\n2 1 0 2 0\n1 5 0\n1\n2\n1 1 0\n1 1 1\n"
+{-> parse . drop 1 . lines $ "4\n132\n1000\n7\n111111111111111110\n"
 
-[P {n = 5, ms = [[(1,True)],[(0,False),(0,False)],[(0,False)]]},P {n = 1, ms = [[(0,False)],[(1,True)]]}]
+[P 132,P 1000,P 7,P 111111111111111110]
 -}
 
-solve' P = S
+solve' (P _) = S 0
 
-write (i, S) = toS $ "Case #" ++ show i ++ ":" ++ "\n"
+write (i, S s) = toS $ "Case #" ++ show i ++ ": " ++ show s ++ "\n"
