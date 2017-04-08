@@ -39,7 +39,7 @@ solve' (P n) =
       tidy [n'] = [n']
       tidy (p:n':rest) | p > n' = p-1 : map (const 9) (n':rest)
       tidy (p:n':rest) = let (p':t') = tidy (n':rest)
-                         in if p' == 0 then p-1 : map (const 9) (n':rest)
+                         in if p > p' then p-1 : map (const 9) (n':rest)
                             else p : p' : t'
   in S $ dropWhile (==0) $ tidy $ digits n
 
