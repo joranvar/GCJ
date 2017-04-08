@@ -31,7 +31,8 @@ parse _ = []
 [P {cs = [False,False,False,True,False,True,True,False], k = 3},P {cs = [True,True,True,True,True], k = 4},P {cs = [False,True,False,True,False], k = 4}]
 -}
 
-solve' P{..} = S 0
+solve' P{..} | all identity cs = S 0
+solve' P{..} = Impossible
 
 write (i, S s) = toS $ "Case #" ++ show i ++ ": " ++ show s ++ "\n"
 write (i, Impossible) = toS $ "Case #" ++ show i ++ ": IMPOSSIBLE\n"
