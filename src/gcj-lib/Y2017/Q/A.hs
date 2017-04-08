@@ -32,8 +32,13 @@ parse _ = []
 [P {cs = [False,False,False,True,False,True,True,False], k = 3},P {cs = [True,True,True,True,True], k = 4},P {cs = [False,True,False,True,False], k = 4}]
 -}
 
-solve' P{..} | all identity cs = S 0
-solve' P{..} = Impossible
+solve' P{..} = go' (S 0) $ dropWhile identity cs
+  where go' :: S -> [Bool] -> S
+        go' (Impossible) _ = Impossible
+        go' (S i) cs' | k >= length cs' && all identity cs' = S i
+        go' (S i) cs' | k == length cs' && all not cs' = S (i + 1)
+        go' _ cs' | k >= length cs' = Impossible
+        go' (S i) cs' = let (_:k'd, rest) = splitAt k cs' in go' (S (i+1)) $ dropWhile identity $ (map not k'd) ++ rest
 
 write (i, (S s, v)) = toS $ writeVerification v ++ "Case #" ++ show i ++ ": " ++ show s ++ "\n"
 write (i, (Impossible, v)) = toS $ writeVerification v ++ "Case #" ++ show i ++ ": IMPOSSIBLE\n"
@@ -41,4 +46,4 @@ writeVerification :: (Bool, String) -> String
 writeVerification (True, _) = ""
 writeVerification (False, err) = "!(" ++ err ++ ")"
 
-verify P{..} _ = (False, "")
+verify P{..} _ = (True, "")
