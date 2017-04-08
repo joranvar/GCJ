@@ -49,7 +49,7 @@ write (i, (S ss, (False, err))) = toS $ "!" ++ err ++ "Case #" ++ show i ++ ": "
 verify (P n) (S ss) =
   let ss' = read 0 (concatMap show ss) in
   case head $ filter tidy $ reverse [ss' + 1..n] of
-    Nothing -> (True, "")
+    Nothing -> (tidy ss', "")
     Just x -> (False, "(" ++ show x ++ ")")
   where tidy :: Integer -> Bool
         tidy i = fst $ foldl (\(b, prev) next -> (b && prev <= next, next)) (True, 0) (digits i)
