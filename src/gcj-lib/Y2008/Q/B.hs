@@ -6,8 +6,8 @@ import qualified Data.Text as Text (concat)
 import Data.List.Split (splitOneOf)
 import Data.String
 
-solve :: Text -> Text
-solve =  Text.concat . map write . zip [1..] .  map solve' . parse . drop 1 . lines . toS
+solve :: Bool -> Text -> Text
+solve _ =  Text.concat . map write . zip [1..] .  map solve' . parse . drop 1 . lines . toS
 
 data Time = Time { hr, mn :: Int }
 data Trip = Trip { dep, arr :: Time }

@@ -6,8 +6,8 @@ import qualified Data.Text as Text (concat)
 --import Data.List.Split
 import Data.String
 
-solve :: Text -> Text
-solve =  Text.concat . map write . zip [1..] .  map solve' . parse . drop 1 . lines . toS
+solve :: Bool -> Text -> Text
+solve blindly =  Text.concat . map write . zip [1..] .  map (\p -> let s = solve' p in (s, blindly || verify p s)) . parse . drop 1 . lines . toS
 
 data P = P Integer
   deriving Show
@@ -16,7 +16,8 @@ data S = S [Int]
 
 parse :: [String] -> [P]
 solve' :: P -> S
-write :: (Int, S) -> Text
+write :: (Int, (S, Bool)) -> Text
+verify :: P -> S -> Bool
 
 read :: (Read a) => a -> String -> a
 read d = maybe d fst . head . reads
@@ -29,15 +30,22 @@ parse _ = []
 [P 132,P 1000,P 7,P 111111111111111110]
 -}
 
+digits :: Integer -> [Int]
+digits n = map (read 0 . (:[])) $ show n :: [Int]
+
 solve' (P n) =
-  let digits = map (read 0 . (:[])) $ show n :: [Int]
-      tidy :: [Int] -> [Int]
+  let tidy :: [Int] -> [Int]
       tidy [] = []
       tidy [n'] = [n']
       tidy (p:n':rest) | p > n' = p-1 : map (const 9) (n':rest)
       tidy (p:n':rest) = let (p':t') = tidy (n':rest)
                          in if p' == 0 then p-1 : map (const 9) (n':rest)
                             else p : p' : t'
-  in S $ dropWhile (==0) $ tidy digits
+  in S $ dropWhile (==0) $ tidy $ digits n
 
-write (i, S ss) = toS $ "Case #" ++ show i ++ ": " ++ concatMap show ss ++ "\n"
+write (i, (S ss, True)) = toS $ "Case #" ++ show i ++ ": " ++ concatMap show ss ++ "\n"
+write (i, (S ss, False)) = toS $ "!Case #" ++ show i ++ ": " ++ concatMap show ss ++ "\n"
+
+verify (P n) (S ss) = all (not . tidy) [read 0 (concatMap show ss) + 1..n-1]
+  where tidy :: Integer -> Bool
+        tidy i = fst $ foldl (\(b, prev) next -> (b || prev > next, next)) (True, 0) (digits i)

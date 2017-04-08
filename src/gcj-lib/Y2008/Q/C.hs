@@ -5,8 +5,8 @@ import Protolude
 import qualified Data.Text as Text (concat)
 import Data.String
 
-solve :: Text -> Text
-solve =  Text.concat . map write . zip [1..] .  map solve' . parse . drop 1 . lines . toS
+solve :: Bool -> Text -> Text
+solve _ =  Text.concat . map write . zip [1..] .  map solve' . parse . drop 1 . lines . toS
 
 data P = P { f, bigR, t, r, g :: Double }
 
