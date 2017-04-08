@@ -26,6 +26,7 @@ library
     default-extensions: NoImplicitPrelude
                       , OverloadedStrings
                       , RecordWildCards
+                      , LambdaCase
 
 executable gcj
     hs-source-dirs: src/gcj-app
