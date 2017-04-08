@@ -12,7 +12,7 @@ solve =  Text.concat . map write . zip [1..] .  map solve' . parse . drop 1 . li
 data P = P Integer
   deriving Show
 
-data S = S Integer
+data S = S [Int]
 
 parse :: [String] -> [P]
 solve' :: P -> S
@@ -29,6 +29,15 @@ parse _ = []
 [P 132,P 1000,P 7,P 111111111111111110]
 -}
 
-solve' (P _) = S 0
+solve' (P n) =
+  let digits = map (read 0 . (:[])) $ show n :: [Int]
+      tidy :: [Int] -> [Int]
+      tidy [] = []
+      tidy [n'] = [n']
+      tidy (p:n':rest) | p > n' = p-1 : map (const 9) (n':rest)
+      tidy (p:n':rest) = let (p':t') = tidy (n':rest)
+                         in if p' == 0 then p-1 : map (const 9) (n':rest)
+                            else p : p' : t'
+  in S $ dropWhile (==0) $ tidy digits
 
-write (i, S s) = toS $ "Case #" ++ show i ++ ": " ++ show s ++ "\n"
+write (i, S ss) = toS $ "Case #" ++ show i ++ ": " ++ concatMap show ss ++ "\n"
