@@ -2,25 +2,19 @@ module Y2017.Q.C where
 
 import Protolude
 
-import qualified Data.Text as Text (concat)
---import Data.List.Split
 import Data.String
 
-solve :: Bool -> Text -> Text
-solve blindly =  Text.concat . map write . zip [1..] .  map (\p -> let s = solve' p in (s, if blindly then (True, "") else verify p s)) . parse . drop 1 . lines . toS
-
-data P = P { n::Integer, k::Integer}
-  deriving Show
-
-data S = S Integer Integer
+import GCJ
 
 parse :: [String] -> [P]
 solve' :: P -> S
-write :: (Int, (S, (Bool, String))) -> Text
-verify :: P -> S -> (Bool, String)
+write :: S -> Text
+verify :: P -> S -> Verification
+solve :: Bool -> Text -> Text
+solve = GCJ.solve (Parse parse) (Solve solve') (Write write) (Verify verify)
 
-read :: (Read a) => a -> String -> a
-read d = maybe d fst . head . reads
+data P = P { n::Integer, k::Integer} deriving Show
+data S = S Integer Integer deriving Show
 
 parse (nk:rest) =
   let (n':k':_) = map (read 0) $ words nk
@@ -34,17 +28,18 @@ parse _ = []
 
 solve' P{..} = uncurry S $ go' k []
   where go' :: Integer -> [(Integer, Integer)] -> (Integer, Integer)
-        go' k _ = (1, 2)
+        go' _ _ = (1, 2)
   -- let generation = (floor ((2 :: Double) `logBase` (fromIntegral k :: Double)) :: Int)
   --     rank = fromIntegral $ k - (2 ^ generation) :: Int
   --     maxLR = foldl (\s b -> if b then s `div` 2 else (s + 1) `div` 2) n $  map (\i -> testBit rank i) $ reverse [0..generation]
   --     minLR = foldl (\s b -> if b then s `div` 2 else (s - 1) `div` 2) n $  map (\i -> testBit rank i) $ reverse [0..generation]
   -- in S maxLR minLR
 
-write (i, (S minLR maxLR, v)) = toS $ writeVerification v ++ "Case #" ++ show i ++ ": " ++ show minLR ++ " " ++ show maxLR ++ "\n"
+{-> map solve' $ parse . drop 1 . lines $ "5\n4 2\n5 2\n6 2\n1000 1000\n1000 1\n"
 
-writeVerification :: (Bool, String) -> String
-writeVerification (True, _) = ""
-writeVerification (False, err) = "!(" ++ err ++ ")"
+[S 1 2,S 1 2,S 1 2,S 1 2,S 1 2]
+-}
 
-verify P{..} _ = (True, "")
+write (S minLR maxLR) = toS $ " " ++ show minLR ++ " " ++ show maxLR ++ "\n"
+
+verify P{..} _ = Nothing

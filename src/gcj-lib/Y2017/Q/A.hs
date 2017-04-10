@@ -2,25 +2,19 @@ module Y2017.Q.A where
 
 import Protolude
 
-import qualified Data.Text as Text (concat)
---import Data.List.Split
 import Data.String
 
-solve :: Bool -> Text -> Text
-solve blindly =  Text.concat . map write . zip [1..] .  map (\p -> let s = solve' p in (s, if blindly then (True, "") else verify p s)) . parse . drop 1 . lines . toS
-
-data P = P { cs::[Bool], k::Int }
-  deriving Show
-
-data S = S Int | Impossible
+import GCJ
 
 parse :: [String] -> [P]
 solve' :: P -> S
-write :: (Int, (S, (Bool, String))) -> Text
-verify :: P -> S -> (Bool, String)
+write :: S -> Text
+verify :: P -> S -> Verification
+solve :: Bool -> Text -> Text
+solve = GCJ.solve (Parse parse) (Solve solve') (Write write) (Verify verify)
 
-read :: (Read a) => a -> String -> a
-read d = maybe d fst . head . reads
+data P = P { cs::[Bool], k::Int } deriving Show
+data S = S Int | Impossible deriving Show
 
 parse (x:rest) =
   let (cs':k':_) = words x
@@ -40,10 +34,12 @@ solve' P{..} = go' (S 0) $ dropWhile identity cs
         go' _ cs' | k >= length cs' = Impossible
         go' (S i) cs' = let (_:k'd, rest) = splitAt k cs' in go' (S (i+1)) $ dropWhile identity $ (map not k'd) ++ rest
 
-write (i, (S s, v)) = toS $ writeVerification v ++ "Case #" ++ show i ++ ": " ++ show s ++ "\n"
-write (i, (Impossible, v)) = toS $ writeVerification v ++ "Case #" ++ show i ++ ": IMPOSSIBLE\n"
-writeVerification :: (Bool, String) -> String
-writeVerification (True, _) = ""
-writeVerification (False, err) = "!(" ++ err ++ ")"
+{-> map solve' $ parse . drop 1 . lines $ "3\n---+-++- 3\n+++++ 4\n-+-+- 4\n"
 
-verify P{..} _ = (True, "")
+[S 3,S 0,Impossible]
+-}
+
+write (S s) = toS $ " " ++ show s ++ "\n"
+write Impossible = " IMPOSSIBLE\n"
+
+verify P{..} _ = Nothing

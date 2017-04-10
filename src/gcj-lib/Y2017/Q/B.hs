@@ -2,25 +2,19 @@ module Y2017.Q.B where
 
 import Protolude
 
-import qualified Data.Text as Text (concat)
---import Data.List.Split
 import Data.String
 
-solve :: Bool -> Text -> Text
-solve blindly =  Text.concat . map write . zip [1..] .  map (\p -> let s = solve' p in (s, if blindly then (True, "") else verify p s)) . parse . drop 1 . lines . toS
-
-data P = P Integer
-  deriving Show
-
-data S = S [Int]
+import GCJ
 
 parse :: [String] -> [P]
 solve' :: P -> S
-write :: (Int, (S, (Bool, String))) -> Text
-verify :: P -> S -> (Bool, String)
+write :: S -> Text
+verify :: P -> S -> Verification
+solve :: Bool -> Text -> Text
+solve = GCJ.solve (Parse parse) (Solve solve') (Write write) (Verify verify)
 
-read :: (Read a) => a -> String -> a
-read d = maybe d fst . head . reads
+data P = P Integer deriving Show
+data S = S [Int] deriving Show
 
 parse (n:rest) = P (read 0 n) : parse rest
 parse _ = []
@@ -43,13 +37,17 @@ solve' (P n) =
                             else p : p' : t'
   in S $ dropWhile (==0) $ tidy $ digits n
 
-write (i, (S ss, (True, _))) = toS $ "Case #" ++ show i ++ ": " ++ concatMap show ss ++ "\n"
-write (i, (S ss, (False, err))) = toS $ "!" ++ err ++ "Case #" ++ show i ++ ": " ++ concatMap show ss ++ "\n"
+{-> map solve' $ parse . drop 1 . lines $ "4\n132\n1000\n7\n111111111111111110\n"
+
+[S [1,2,9],S [9,9,9],S [7],S [9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9]]
+-}
+
+write (S ss) = toS $ " " ++ concatMap show ss ++ "\n"
 
 verify (P n) (S ss) =
   let ss' = read 0 (concatMap show ss) in
   case head $ filter tidy $ reverse [ss' + 1..n] of
-    Nothing -> (tidy ss', "")
-    Just x -> (False, "(" ++ show x ++ ")")
+    Nothing -> if not $ tidy ss' then Just "" else Nothing
+    Just x -> Just $ show x
   where tidy :: Integer -> Bool
         tidy i = fst $ foldl (\(b, prev) next -> (b && prev <= next, next)) (True, 0) (digits i)
