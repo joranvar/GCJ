@@ -8,15 +8,10 @@ library
     hs-source-dirs: src/gcj-lib
     exposed-modules: Lib
     other-modules: GCJ
-                 , Y2008.Q.A
-                 , Y2008.Q.B
-                 , Y2008.Q.C
-                 , Y2008.R1A.A
-                 , Y2008.R1A.B
-                 , Y2017.Q.A
-                 , Y2017.Q.B
-                 , Y2017.Q.C
-                 , Y2017.Q.D
+                 , Y2017.R1A.A
+                 , Y2017.R1A.B
+                 , Y2017.R1A.C
+                 , Y2017.R1A.D
     ghc-options: -Wall -Werror
     build-depends: base
                  , protolude
