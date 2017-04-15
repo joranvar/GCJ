@@ -30,13 +30,27 @@ parse _ = []
 [P {cake = ["G??","?C?","??J"]},P {cake = ["CODE","????","?JAM"]},P {cake = ["CA","KE"]}]
 -}
 
-solve' P{..} = S []
+solve' P{..} =
+  let hor :: String -> String
+      hor ('?':rest) = let c = fromMaybe '?' (firstInitial rest) in c:(map (const c) $ takeWhile (=='?') rest) ++ (hor $ dropWhile (=='?') rest)
+      hor (c:rest) = c:(map (const c) $ takeWhile (=='?') rest) ++ (hor $ dropWhile (=='?') rest)
+      hor [] = []
+      firstInitial rest = head $ dropWhile (=='?') rest
+      ver :: [String] -> [String]
+      ver (l:rest) | all (=='?') l = let cs = fromMaybe (map (const '?') l) (firstGood rest) in cs:(map (const cs) $ takeWhile (all (=='?')) rest) ++ (ver $ dropWhile (all (=='?')) rest)
+      ver (cs:rest) = cs:(map (const cs) $ takeWhile (all (=='?')) rest) ++ (ver $ dropWhile (all (=='?')) rest)
+      ver [] = []
+      firstGood rest = head $ dropWhile (all (=='?')) rest
+  in
+  S $ ver $ map hor cake
 
 {-> map solve' $ parse . drop 1 . lines $ example
 
-[]
+[S {grid = ["GGG","CCC","JJJ"]},S {grid = ["CODE","CODE","JJAM"]},S {grid = ["CA","KE"]}]
 -}
 
-write S{..} = toS $ " " ++ "\n"
+write S{..} = toS $ "\n" ++ concat (map (++ "\n") grid)
 
-verify P{..} S{..} = Nothing
+verify P{..} S{..} =
+  if any (any (== '?')) grid then Just "Incomplete"
+  else Nothing
