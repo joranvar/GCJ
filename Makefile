@@ -21,8 +21,8 @@ vpath %.hs src/gcj-lib
 .SECONDARY:
 
 .PHONY: %.run
-%-sample.run: Y2017.R1A.%.zip Y2017.R1A.%.sample.out ;
-%-small.run: Y2017.R1A.%.zip Y2017.R1A.%.small.out ;
-%-large.run: Y2017.R1A.%.zip Y2017.R1A.%.large.out ;
-%-small2.run: Y2017.R1A.%.zip Y2017.R1A.%.small2.out ;
+%-sample.run: Y2017.R1B.%.zip Y2017.R1B.%.sample.out ;
+%-small.run: Y2017.R1B.%.zip Y2017.R1B.%.small.out ;
+%-large.run: Y2017.R1B.%.zip Y2017.R1B.%.large.out ;
+%-small2.run: Y2017.R1B.%.zip Y2017.R1B.%.small2.out ;
 %.verify: %.run ;
