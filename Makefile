@@ -12,7 +12,7 @@ vpath %.hs src/gcj-lib
 
 .SECONDEXPANSION:
 %.out: Y$$(YEAR)/$$(ROUND)/$$(PROBLEM).hs
-	stack build --exec "gcj $(VERIFY) $(YEAR)-$(ROUND)-$(PROBLEM)" < Y$(YEAR).$(ROUND).$(PROBLEM)-$(SIZE).in > $@
+	stack build --exec "gcj $(VERIFY) $(YEAR)-$(ROUND)-$(PROBLEM) +RTS -N" < Y$(YEAR).$(ROUND).$(PROBLEM)-$(SIZE).in > $@
 	grep ^! $@ && exit 1 || exit 0
 
 %.zip: Y$$(YEAR)/$$(ROUND)/$$(PROBLEM).hs src/gcj-app/Main.hs src/gcj-lib/GCJ.hs src/gcj-lib/Lib.hs gcj.cabal stack.yaml

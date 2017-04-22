@@ -18,7 +18,11 @@ solve (Parse parse) (Solve solve') (Write write) (Verify verify) blindly =
       writeWithVerification (i, (s, Nothing)) = T.concat [toS $ "Case #" ++ show i ++ ":", write s]
       writeWithVerification (i, (s, Just err)) = T.concat [toS $"!(" ++ err ++ ")", writeWithVerification (i, (s, Nothing))]
   in
-    T.concat . map writeWithVerification . zip [1..] .  parMap rpar (\p -> let s = solve' p in (s, if blindly then Nothing else verify p s)) . parse . drop 1 . lines . toS
+    T.concat
+    . parMap rpar writeWithVerification
+    . zip [1..]
+    . parMap rpar (\p -> let s = solve' p in (s, if blindly then Nothing else verify p s))
+    . parse . drop 1 . lines . toS
 
 read :: (Read a) => a -> String -> a
 read d = maybe d fst . head . reads
