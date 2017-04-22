@@ -34,13 +34,18 @@ parse _ = []
 [P {d = 2525, hs = [Horse {position = 2400, speed = 5}]},P {d = 300, hs = [Horse {position = 120, speed = 60},Horse {position = 60, speed = 90}]},P {d = 100, hs = [Horse {position = 80, speed = 100},Horse {position = 70, speed = 10}]}]
 -}
 
-solve' P{..} = S 0
+solve' P{..} =
+  let
+    time = maximum $ map (horsetime (fromIntegral d)) hs
+    horsetime :: Double -> Horse -> Double
+    horsetime dst Horse{..} = (dst - (fromIntegral position)) / (fromIntegral speed)
+  in S $ (fromIntegral d) / time
 
 {-> map solve' $ parse . drop 1 . lines $ example
 
-[S {grid = ["GGG","CCC","JJJ"]},S {grid = ["CODE","CODE","JJAM"]},S {grid = ["CA","KE"]}]
+[S {y = 101.0},S {y = 100.0},S {y = 33.333333333333336}]
 -}
 
-write S{..} = toS $ " " ++ show y
+write S{..} = toS $ " " ++ show y ++ "\n"
 
 verify P{..} S{..} = Nothing
