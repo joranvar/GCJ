@@ -2,6 +2,7 @@ module Y2017.R1B.B where
 
 import Protolude
 
+import qualified Data.Map as Map (adjust, elems, fromList, filter, filterWithKey, toList)
 import Data.String
 
 import GCJ
@@ -16,57 +17,55 @@ solve = GCJ.solve (Parse parse) (Solve solve') (Write write) (Verify verify)
 example :: String
 example = "4\n6 2 0 2 0 2 0\n3 1 0 2 0 0 0\n6 2 0 1 1 2 0\n4 0 0 2 0 0 2\n"
 
-data P = P { r,o,y,g,b,v::Int
+data Unicorn = R | O | Y | G | B | V deriving (Show, Eq, Ord)
+data P = P { us::Map Unicorn Int
            , n::Int  } deriving Show
-data S = Impossible | S [Char] deriving (Show, Eq)
+data S = Impossible | S [Unicorn] deriving (Show, Eq)
+
+normalize :: Map Unicorn Int -> Map Unicorn Int
+normalize = Map.filter (>0)
 
 parse (unicorns:rest) =
   let (n:r:o:y:g:b:v:_) = map (read 0) $ words unicorns
-  in P r o y g b v n : parse rest
+      us' = normalize $ Map.fromList [(R, r), (O, o), (Y, y), (G, g), (B, b), (V, v)]
+  in P us' n : parse rest
 parse _ = []
 
 {-> parse . drop 1 . lines $ example
 
-[P {r = 2, o = 0, y = 2, g = 0, b = 2, v = 0, n = 6},P {r = 1, o = 0, y = 2, g = 0, b = 0, v = 0, n = 3},P {r = 2, o = 0, y = 1, g = 1, b = 2, v = 0, n = 6},P {r = 0, o = 0, y = 2, g = 0, b = 0, v = 2, n = 4}]
+[P {us = fromList [(R,2),(Y,2),(B,2)], n = 6},P {us = fromList [(R,1),(Y,2)], n = 3},P {us = fromList [(R,2),(Y,1),(G,1),(B,2)], n = 6},P {us = fromList [(Y,2),(V,2)], n = 4}]
 -}
 
-solve' p' =
+solve' P{..} =
   let
-    firstBuild :: [([Char], P)] -> S
-    firstBuild = fromMaybe Impossible . head . dropWhile (==Impossible) . map (uncurry build)
-    makeBuild :: [Char] -> P -> Char -> ([Char], P)
-    makeBuild sol p@P{..} 'R' = (('R':sol), p{r=r-1})
-    makeBuild sol p@P{..} 'O' = (('O':sol), p{o=o-1})
-    makeBuild sol p@P{..} 'Y' = (('Y':sol), p{y=y-1})
-    makeBuild sol p@P{..} 'G' = (('G':sol), p{g=g-1})
-    makeBuild sol p@P{..} 'B' = (('B':sol), p{b=b-1})
-    makeBuild sol p@P{..} 'V' = (('V':sol), p{v=v-1})
-    makeBuild _ _ _ = undefined
+    makeBuild :: [Unicorn] -> [Unicorn] -> Map Unicorn Int -> S
+    makeBuild set sol us' = case head $ sortOn (negate . snd) $ Map.toList $ Map.filterWithKey (\k _ -> k `elem` set) us' of
+      Nothing -> Impossible
+      Just (u,_) -> build (u:sol) (normalize $ Map.adjust (subtract 1) u us')
 
-    build :: [Char] -> P -> S
-    build sol P{..} | (length sol) == n && (head sol /= (head $ reverse sol)) = S sol
-    build sol P{..} | (length sol) == n = Impossible
-    build sol@('R':_) p@P{..} = firstBuild $ map snd $ filter ((>0) . fst) [(y, makeBuild sol p 'Y'), (g, makeBuild sol p 'G'), (b, makeBuild sol p 'B')]
-    build sol@('O':_) p@P{..} = firstBuild $ map snd $ filter ((>0) . fst) [(b, makeBuild sol p 'B')]
-    build sol@('Y':_) p@P{..} = firstBuild $ map snd $ filter ((>0) . fst) [(r, makeBuild sol p 'R'), (v, makeBuild sol p 'V'), (b, makeBuild sol p 'B')]
-    build sol@('G':_) p@P{..} = firstBuild $ map snd $ filter ((>0) . fst) [(r, makeBuild sol p 'R')]
-    build sol@('B':_) p@P{..} = firstBuild $ map snd $ filter ((>0) . fst) [(r, makeBuild sol p 'R'), (o, makeBuild sol p 'O'), (y, makeBuild sol p 'Y')]
-    build sol@('V':_) p@P{..} = firstBuild $ map snd $ filter ((>0) . fst) [(y, makeBuild sol p 'Y')]
-    build _ P{..} | (<2) $ length $ filter (>0) [r,b,y] = Impossible
-    build _ P{..} | (n%2==1) && ((==2) $ length $ filter (>0) [r,b,y]) = Impossible
-    build _ P{..} | ((==2) $ length $ filter (>0) [r,b,y]) && notEqual = Impossible
-      where notEqual = let (a:c:_) = filter (>0) [r,b,y] in a /= c
-    build sol p@P{..} = firstBuild $ take 1 $ map snd $ filter ((>0) . fst) [(r, makeBuild sol p 'R'), (o, makeBuild sol p 'O'), (y, makeBuild sol p 'Y')
-                                                                            ,(g, makeBuild sol p 'G'), (b, makeBuild sol p 'B'), (v, makeBuild sol p 'V')]
- in build "" p'
+    build :: [Unicorn] -> Map Unicorn Int -> S
+    build sol _ | (length sol) == n && (head sol /= (head $ reverse sol)) = S sol
+    build sol _ | (length sol) == n = Impossible
+    build sol@(R:_) us' = makeBuild [Y,G,B] sol us'
+    build sol@(O:_) us' = makeBuild [B] sol us'
+    build sol@(Y:_) us' = makeBuild [R,V,B] sol us'
+    build sol@(G:_) us' = makeBuild [R] sol us'
+    build sol@(B:_) us' = makeBuild [R,O,Y] sol us'
+    build sol@(V:_) us' = makeBuild [Y] sol us'
+    build _ us' | (<2) $ length us' = Impossible
+    build _ us' | (n%2==1) && ((==2) $ length us') = Impossible
+    build _ us' | ((==2) $ length us') && notEqual = Impossible
+      where notEqual = let (a:c:_) = Map.elems us' in a /= c
+    build sol us' = makeBuild [R,O,Y,G,B,V] sol us'
+ in build [] us
 
 {-> map solve' $ parse . drop 1 . lines $ example
 
-[S "BYBRYR",Impossible,S "BYBRGR",S "VYVY"]
+[S [B,Y,R,B,Y,R],Impossible,Impossible,S [V,Y,V,Y]]
 -}
 
 write Impossible = " IMPOSSIBLE\n"
-write (S sol) = toS $ " " ++ sol ++ "\n"
+write (S sol) = toS $ " " ++ concatMap show sol ++ "\n"
 
 verify P{..} (S sol) = if length sol /= n then Just "Length mismatch!" else Nothing
 verify P{..} Impossible = Nothing
