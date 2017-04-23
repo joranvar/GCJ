@@ -39,9 +39,14 @@ parse _ = []
 solve' P{..} =
   let
     makeBuild :: [Unicorn] -> [Unicorn] -> Map Unicorn Int -> S
-    makeBuild set sol us' = case head $ sortOn (negate . snd) $ Map.toList $ Map.filterWithKey (\k _ -> k `elem` set) us' of
+    makeBuild set sol us' = case head
+                                 $ dropWhile (==Impossible)
+                                 $ map (\(u, _) -> build (u:sol) (normalize $ Map.adjust (subtract 1) u us'))
+                                 $ sortOn (negate . snd)
+                                 $ Map.toList
+                                 $ Map.filterWithKey (\k _ -> k `elem` set) us' of
       Nothing -> Impossible
-      Just (u,_) -> build (u:sol) (normalize $ Map.adjust (subtract 1) u us')
+      Just s -> s
 
     build :: [Unicorn] -> Map Unicorn Int -> S
     build sol _ | (length sol) == n && (head sol /= (head $ reverse sol)) = S sol
