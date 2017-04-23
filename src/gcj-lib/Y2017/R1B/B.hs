@@ -52,6 +52,10 @@ solve' p' =
     build sol@('G':_) p@P{..} = firstBuild $ map snd $ filter ((>0) . fst) [(r, makeBuild sol p 'R')]
     build sol@('B':_) p@P{..} = firstBuild $ map snd $ filter ((>0) . fst) [(r, makeBuild sol p 'R'), (o, makeBuild sol p 'O'), (y, makeBuild sol p 'Y')]
     build sol@('V':_) p@P{..} = firstBuild $ map snd $ filter ((>0) . fst) [(y, makeBuild sol p 'Y')]
+    build _ P{..} | (<2) $ length $ filter (>0) [r,b,y] = Impossible
+    build _ P{..} | (n%2==1) && ((==2) $ length $ filter (>0) [r,b,y]) = Impossible
+    build _ P{..} | ((==2) $ length $ filter (>0) [r,b,y]) && notEqual = Impossible
+      where notEqual = let (a:c:_) = filter (>0) [r,b,y] in a /= c
     build sol p@P{..} = firstBuild $ take 1 $ map snd $ filter ((>0) . fst) [(r, makeBuild sol p 'R'), (o, makeBuild sol p 'O'), (y, makeBuild sol p 'Y')
                                                                             ,(g, makeBuild sol p 'G'), (b, makeBuild sol p 'B'), (v, makeBuild sol p 'V')]
  in build "" p'
